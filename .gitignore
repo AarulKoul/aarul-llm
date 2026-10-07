@@ -17,3 +17,6 @@ train/runs/**/stderr.log
 web/node_modules/
 web/public/build/
 *.tsbuildinfo
+
+# Personal notes, not part of the project
+LINKEDIN.md
