@@ -1,0 +1,20 @@
+{
+  "name": "aarul",
+  "version": "0.1.0",
+  "description": "A language model written and trained from scratch on a laptop, running in the browser on a from-scratch inference engine",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "author": "Aarul Koul",
+  "scripts": {
+    "dev": "esbuild src/ui/main.ts src/engine/worker.ts --bundle --format=esm --outdir=public/build --servedir=public --serve=127.0.0.1:4174",
+    "build": "esbuild src/ui/main.ts src/engine/worker.ts --bundle --format=esm --minify --outdir=public/build",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AARUL: a language model built from scratch on a laptop</title>
+<meta name="description" content="A language model written and trained from scratch on a laptop GPU, running in your browser on a from-scratch inference engine. Watch it think.">
+<meta property="og:title" content="AARUL: Attention Architecture, Rebuilt Using a Laptop">
+<meta property="og:description" content="A language model built from scratch, trained on a laptop, running in your browser. Watch it think.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aarulkoul.github.io/aarul/">
+<meta property="og:image" content="https://aarulkoul.github.io/aarul/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23f5a524'/><text x='16' y='23' font-family='monospace' font-size='18' font-weight='700' text-anchor='middle' fill='%230b0d12'>A</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="hero wrap">
+  <div class="eyebrow">a language model, built from scratch</div>
+  <h1 class="wordmark">AARUL</h1>
+  <p class="acronym"><b>A</b>ttention <b>A</b>rchitecture, <b>R</b>ebuilt <b>U</b>sing a <b>L</b>aptop</p>
+  <p class="lede">
+    I wrote a transformer from scratch, trained it on my laptop's GPU, and wrote the engine
+    that runs it. <strong>It's running in your browser right now:</strong> no server, no API,
+    no ML libraries. Give it the start of a story and watch it think.
+  </p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<main>
+  <section class="wrap" id="play">
+    <div class="section-head">
+      <h2>Watch it think</h2>
+      <p>Every word is a choice. Point at any word to see what else the model considered, and which
+        earlier words it was paying attention to when it made that choice.</p>
+    </div>
+
+    <div class="playground">
+      <div class="panel story-panel">
+        <div class="prompt-row">
+          <textarea id="prompt" rows="2" spellcheck="false" aria-label="Story prompt">Once upon a time, there was a little dragon who</textarea>
+          <button id="go" class="btn primary" disabled>Loading…</button>
+        </div>
+        <div class="presets" id="presets"></div>
+        <div class="controls">
+          <label>temperature <output id="tempOut">0.8</output>
+            <input id="temp" type="range" min="0" max="1.5" step="0.05" value="0.8">
+          </label>
+          <label>top-k <output id="topkOut">40</output>
+            <input id="topk" type="range" min="1" max="200" step="1" value="40">
+          </label>
+          <div class="seg" role="group" aria-label="Speed">
+            <button class="seg-btn on" data-speed="70">watch</button>
+            <button class="seg-btn" data-speed="0">fast</button>
+          </div>
+        </div>
+
+        <div class="story" id="story" aria-live="polite">
+          <div class="loading" id="loading">
+            <div class="bar"><div id="loadBar"></div></div>
+            <span id="loadText">Downloading the model…</span>
+          </div>
+        </div>
+
+        <div class="story-foot">
+          <div class="legend">
+            <span><i class="sw sw-prompt"></i>your words</span>
+            <span><i class="sw sw-surprise"></i>a surprising choice</span>
+            <span><i class="sw sw-attn"></i>where it's looking</span>
+          </div>
+          <div class="foot-right">
+            <span class="speed" id="speed"></span>
+            <button class="btn small" id="share" type="button" hidden>Share this story</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel inspector" id="inspector">
+        <div class="insp-empty" id="inspEmpty">
+          <p>Generate a story, then point at any word.</p>
+          <p class="muted">While it writes, this panel follows the newest word, live.</p>
+        </div>
+        <div class="insp-body" id="inspBody" hidden>
+          <div class="insp-token">
+            <span class="insp-label" id="inspLabel">it chose</span>
+            <span class="tok-big" id="inspTok"></span>
+            <span class="insp-meta" id="inspMeta"></span>
+          </div>
+          <h3>What it considered</h3>
+          <ol class="cands" id="cands"></ol>
+          <h3>Where it looked <span class="muted" id="attnScope">all layers, all heads</span></h3>
+          <div class="heads" id="heads"></div>
+          <p class="hint">Each cell is one attention head; brighter means more focused on one
+            earlier word. Click a head to see only what it saw, click again for the average.
+            <span class="bos-inline">◆</span> is the start of the story, where heads put their
+            attention when they have nothing useful to look at.</p>
+        </div>
+      </aside>
+    </div>
+    <p class="caveat">It has only ever read simple children's stories, so that's all it knows how to write.
+      When I typed "The stock market", it explained that the stock market was "a very big store."</p>
+  </section>
+
+  <section class="wrap" id="learn">
+    <div class="section-head">
+      <h2>Watch it learn</h2>
+      <p>The same prompt, the same random seed, asked at different points during training. It starts out
+        knowing nothing, not even what a word is.</p>
+    </div>
+    <div class="panel timeline">
+      <div class="chart" id="chart"></div>
+      <div class="tl-controls">
+        <button class="btn" id="tlPlay">▶ Play</button>
+        <input id="tlSlider" type="range" min="0" max="0" value="0" aria-label="Training step">
+        <span class="tl-at" id="tlAt"></span>
+      </div>
+      <blockquote class="tl-sample" id="tlSample"></blockquote>
+    </div>
+  </section>
+
+  <section class="wrap" id="how">
+    <div class="section-head">
+      <h2>How it's built</h2>
+      <p>Four pieces, all written from scratch. No pretrained weights, no Hugging Face, no ONNX, no WebGPU
+        library: just PyTorch tensors for training and plain TypeScript for inference.</p>
+    </div>
+    <ol class="pipeline" id="pipeline"></ol>
+    <div class="cards">
+      <article class="panel card">
+        <h3>1 · Tokenizer</h3>
+        <p>A byte-level BPE tokenizer trained on the stories. It starts with the 256 possible bytes and
+          learns 3,839 merges, pair by pair, until common words like <code>·once</code> and
+          <code>·princess</code> are single tokens. The browser runs an exact port of it.</p>
+      </article>
+      <article class="panel card">
+        <h3>2 · Transformer</h3>
+        <p>The same design as Meta's Llama, scaled down: rotary position embeddings, RMSNorm, SwiGLU
+          feed-forward layers, and an output layer tied to the input embeddings. About 150 lines of
+          PyTorch.</p>
+      </article>
+      <article class="panel card">
+        <h3>3 · Training</h3>
+        <p>Trained from random numbers on a laptop RTX 3070 Ti, using AdamW with warmup and cosine decay
+          in bfloat16. Every 500 steps it saves a resumable checkpoint, so a closed lid doesn't cost a
+          whole run.</p>
+      </article>
+      <article class="panel card">
+        <h3>4 · Inference engine</h3>
+        <p>A from-scratch TypeScript forward pass with a key/value cache, running in a Web Worker. Weights
+          ship as int8 with a per-row scale, 4× smaller than float32. A test checks that its output
+          matches PyTorch's.</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <span>Built by <a href="https://linkedin.com/in/AarulKoul" target="_blank" rel="noopener">Aarul Koul</a>
+    · <a href="https://github.com/AarulKoul/aarul" target="_blank" rel="noopener">source on GitHub</a></span>
+  <span class="muted" id="footMeta"></span>
+</footer>
+
+<script type="module" src="build/ui/main.js"></script>
+</body>
+</html>

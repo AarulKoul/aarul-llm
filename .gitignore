@@ -1,0 +1,19 @@
+# Python
+train/.venv/
+__pycache__/
+
+# Dataset and token streams (re-create with data/fetch.sh + train/prepare.py)
+data/*
+!data/fetch.sh
+!data/tokenizer.json
+
+# Training runs: keep the logs and config, not the checkpoints
+train/runs/**/*.pt
+train/runs/**/*.tmp
+train/runs/**/stdout.log
+train/runs/**/stderr.log
+
+# Web
+web/node_modules/
+web/public/build/
+*.tsbuildinfo
