@@ -6,7 +6,7 @@ A language model I wrote from scratch, trained from random numbers on a laptop G
 your browser on an inference engine I also wrote from scratch. There's no server, no API, and no
 ML library on the page: just 15.7 million numbers I trained and 19 KB of JavaScript.
 
-**[Try it: watch it think →](https://aarulkoul.github.io/aarul/)**
+**[Try it: watch it think →](https://aarulkoul.github.io/aarul-llm/)**
 
 The demo has two parts:
 
@@ -47,7 +47,7 @@ grammar, characters, cause and effect, and how bedtime stories tend to end.
 ### What "loss" means here
 
 The model knows 4,096 tokens. Guessing uniformly at random gives a loss of ln(4096) ≈ **8.32**,
-which is where the [training chart](https://aarulkoul.github.io/aarul/#learn) starts. A loss of _L_
+which is where the [training chart](https://aarulkoul.github.io/aarul-llm/#learn) starts. A loss of _L_
 means the model is, on average, about as uncertain as if it were choosing between e^L equally likely
 options. AARUL ends training at a loss of **1.27**, as if each next token were a choice between
 roughly **3.6** options instead of 4,096.

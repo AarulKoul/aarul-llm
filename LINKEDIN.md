@@ -29,8 +29,8 @@
 >
 > It has only ever read children's stories, so it has some opinions. I typed "The stock market" and it wrote: "The stock market was a very big store." 😄
 >
-> Try it (it runs entirely in your browser): https://aarulkoul.github.io/aarul/
-> Code: https://github.com/AarulKoul/aarul
+> Try it (it runs entirely in your browser): https://aarulkoul.github.io/aarul-llm/
+> Code: https://github.com/AarulKoul/aarul-llm
 >
 > What should I train it on next? 👇
 >
